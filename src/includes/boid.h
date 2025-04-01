@@ -1,4 +1,5 @@
 #pragma once
+
 #include <SFML/Graphics.hpp>
 
 
@@ -10,8 +11,9 @@ class Boid : public sf::ConvexShape
     sf::Color m_color;
 
     public:
+    Boid();
     Boid(sf::Vector2f positon, sf::Angle rotation);
     void calculate_separation();
     void calculate_aligment();
     void calculate_cohesion();
-}
+};

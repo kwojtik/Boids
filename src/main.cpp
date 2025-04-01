@@ -1,10 +1,10 @@
 #include <SFML/Graphics.hpp>
-#include "includes/game.h"
+#include "game.h"
 
 int main()
 {
-    Game game();
-    game.run();
+    Game game;
+    game.run(10);
     // auto window = sf::RenderWindow(sf::VideoMode({1920u, 1080u}), "CMake SFML Project");
     // window.setFramerateLimit(144);
 
