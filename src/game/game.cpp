@@ -20,11 +20,19 @@ Game::Game(unsigned int width, unsigned int height)
     m_window.create(sf::VideoMode({m_window_width, m_window_height}, desktop.bitsPerPixel), "Boids", sf::Style::None);
 }
 
+sf::Vector2f Game::random_within_bounds()
+{
+    sf::Vector2f random({float(rand()%m_window_width), float(rand()%m_window_height)});
+
+    return random;
+}
+
 void Game::run(int boids_number)
 {
+    srand(time(0));
     for(int i = 0; i < boids_number; i++)
     {
-        Boid boid(sf::Vector2f(m_window_width/2, m_window_height/2), sf::Angle());
+        Boid boid(random_within_bounds(), sf::Angle());
 
         m_boids.push_back(boid);
     }
@@ -38,8 +46,10 @@ void Game::run(int boids_number)
 void Game::render()
 {
     m_window.clear();
-    for(Boid boid : m_boids)
+
+    for(Boid& boid : m_boids)
     {
+        boid.update_position(m_boids, m_window_height, m_window_width);
         m_window.draw(boid);
     }
 

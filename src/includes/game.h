@@ -2,6 +2,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <vector>
+#include <cstdlib>
 
 #include "boid.h"
 
@@ -16,6 +17,7 @@ class Game
     public:
     Game();
     Game(unsigned int width, unsigned int height);
+    sf::Vector2f random_within_bounds();
     void run(int boids_number);
     void render();
 };
