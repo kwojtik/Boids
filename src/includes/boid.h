@@ -8,7 +8,7 @@
 
 class Boid : public sf::ConvexShape
 {
-    private:
+    protected:
     sf::Vector2f m_velocity;
     sf::Vector2f m_acceleration;
     sf::Color m_color;
@@ -19,8 +19,9 @@ class Boid : public sf::ConvexShape
 
     public:
     Boid();
-    Boid(sf::Vector2f positon, sf::Angle rotation, float range=300, float separation=200, float aligment=20, float cohesion=20);
+    Boid(sf::Vector2f positon, sf::Angle rotation, float range=200, float separation=0.5, float aligment=1, float cohesion=1);
     float distance(sf::Vector2f boid_position);
+    sf::Vector2f get_velocity();
     sf::Vector2f get_position();
     sf::Vector2f calculate_separation(std::vector<Boid> boids);
     sf::Vector2f calculate_aligment(std::vector<Boid> boids);

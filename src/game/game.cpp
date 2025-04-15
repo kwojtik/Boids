@@ -36,6 +36,7 @@ void Game::run(int boids_number)
 
         m_boids.push_back(boid);
     }
+    for(int i = 0; i < 4; i++)
 
     while(m_window.isOpen())
     {

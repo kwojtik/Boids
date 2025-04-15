@@ -15,14 +15,14 @@ Boid::Boid(sf::Vector2f position, sf::Angle rotation, float range, float separat
     setOrigin(sf::Vector2f(0.f, 0.f));
     setPosition(position);
     rotate(rotation);
-    scale({0.15f, 0.15f});
+    scale({0.08f, 0.08f});
 
     m_visual_range = range;
     m_desired_separation = separation;
     m_desired_aligment = aligment;
     m_desired_cohesion = cohesion;
 
-    sf::Vector2f test({15.0f, 15.0f});
+    sf::Vector2f test({1.0f, 1.0f});
     m_velocity = test;
     m_acceleration = test;
 }
@@ -38,24 +38,32 @@ sf::Vector2f Boid::get_position()
     return getPosition();
 }
 
+sf::Vector2f Boid::get_velocity()
+{
+    return m_velocity;
+}
+
 sf::Vector2f Boid::calculate_separation(std::vector<Boid> boids)
 {
     sf::Vector2f separation({0.0f, 0.0f});
     int in_distance = 0;
+    int min_distance = 10;
 
     for(Boid boid : boids)
     {
         float dist = distance(boid.get_position());
 
-        if((dist < m_visual_range) && (dist < m_desired_separation) && (dist > 0))
+        if((dist < m_visual_range) && (dist > 0))
         {
             sf::Vector2f difference({0.0f, 0.0f});
             difference = get_position() - boid.get_position();
-            difference.normalized();
-            difference = difference / dist;
-            separation.x += difference.x;
-            separation.y += difference.y;
-            in_distance++;
+            separation.x += m_desired_separation*(1 - (min_distance/dist))*difference.x;
+            separation.y += m_desired_separation*(1 - (min_distance/dist))*difference.y;
+            // difference.normalized();
+            // difference = difference / dist;
+            // separation.x += difference.x;
+            // separation.y += difference.y;
+            // in_distance++;
         }
 
     }
@@ -67,9 +75,7 @@ sf::Vector2f Boid::calculate_separation(std::vector<Boid> boids)
     }
     if(separation.lengthSquared() > 0)
     {
-        separation.normalized();
-        separation.x *= m_velocity.x;
-        separation.y *= m_velocity.y;
+        separation = separation.normalized();
     }
 
     return separation;
@@ -78,11 +84,33 @@ sf::Vector2f Boid::calculate_separation(std::vector<Boid> boids)
 sf::Vector2f Boid::calculate_aligment(std::vector<Boid> boids)
 {
     sf::Vector2f aligment({0.0f, 0.0f});
+    int in_distance = 0;
 
-    // for(Boid boid : boids)
-    // {
+    for(Boid boid : boids)
+    {
+        float dist = distance(boid.get_position());
 
-    // }
+        if((dist < m_visual_range) && (dist > 0))
+        {
+            aligment.x += boid.get_position().x;
+            aligment.y += boid.get_position().y;
+
+            in_distance++;
+        }
+    }
+
+    if(in_distance > 0)
+    {
+        aligment.x /= in_distance;
+        aligment.y /= in_distance;
+
+        aligment.x = m_desired_aligment*(aligment.x - get_position().x);
+        aligment.y = m_desired_aligment*(aligment.y - get_position().y);
+    }
+    if(aligment.lengthSquared() > 0)
+    {
+        aligment = aligment.normalized();
+    }
 
     return aligment;
 }
@@ -90,6 +118,32 @@ sf::Vector2f Boid::calculate_aligment(std::vector<Boid> boids)
 sf::Vector2f Boid::calculate_cohesion(std::vector<Boid> boids)
 {
     sf::Vector2f cohesion({0.0f, 0.0f});
+    sf::Vector2f average_velocity({0.0f, 0.0f});
+    int in_distance = 0;
+
+    for(Boid boid : boids)
+    {
+        float dist = distance(boid.get_position());
+
+        if((dist < m_visual_range) && (dist > 0))
+        {
+            average_velocity += boid.get_velocity();
+            in_distance++;
+        }
+    }
+
+    if(in_distance > 0)
+    {
+        average_velocity.x /= in_distance;
+        average_velocity.y /= in_distance;
+        
+        cohesion.x = m_desired_cohesion*(get_velocity().x - average_velocity.x);
+        cohesion.y = m_desired_cohesion*(get_velocity().y - average_velocity.y);
+    }
+    if(cohesion.lengthSquared() > 0)
+    {
+        cohesion = cohesion.normalized();
+    }
 
     return cohesion;
 }
@@ -101,8 +155,14 @@ sf::Vector2f Boid::calculate_position(std::vector<Boid> boids)
     sf::Vector2f cohesion = calculate_cohesion(boids);
 
     m_acceleration = m_acceleration + separation + aligment + cohesion;
+
+    if(m_acceleration.length() > 3)
+    {
+        m_acceleration = m_acceleration.normalized();
+    }
     
     sf::Vector2f position(get_position());
+    
     position.x += m_acceleration.x;
     position.y += m_acceleration.y;
 
@@ -115,19 +175,19 @@ void Boid::avoid_edges(int height, int width)
 
     if(tmp_position.y > height)
     {
-        tmp_position.y = height;
+        tmp_position.y = 0;
     }
     else if(tmp_position.y < 0)
     {
-        tmp_position.y = 0;
+        tmp_position.y = height;
     }
     if(tmp_position.x > width)
     {
-        tmp_position.x = width;
+        tmp_position.x = 0;
     }
     else if(tmp_position.x < 0)
     {
-        tmp_position.x = 0;
+        tmp_position.x = width;
     }
 
     setPosition(tmp_position);
@@ -137,4 +197,7 @@ void Boid::update_position(std::vector<Boid> boids, int height, int width)
 {
     setPosition(calculate_position(boids));
     avoid_edges(height, width);
+
+    float look_angle = std::atan2(m_acceleration.x, m_acceleration.y);
+    setRotation(sf::radians(look_angle));
 }
