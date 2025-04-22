@@ -4,5 +4,5 @@
 int main()
 {
     Game game;
-    game.run(30);
+    game.run(50, 8);
 }

@@ -16,6 +16,7 @@ class Boid : public sf::ConvexShape
     float m_desired_separation;
     float m_desired_aligment;
     float m_desired_cohesion;
+    bool m_predator;
 
     public:
     Boid();
@@ -23,6 +24,7 @@ class Boid : public sf::ConvexShape
     float distance(sf::Vector2f boid_position);
     sf::Vector2f get_velocity();
     sf::Vector2f get_position();
+    bool is_predator();
     sf::Vector2f calculate_separation(std::vector<Boid> boids);
     sf::Vector2f calculate_aligment(std::vector<Boid> boids);
     sf::Vector2f calculate_cohesion(std::vector<Boid> boids);

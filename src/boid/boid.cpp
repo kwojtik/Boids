@@ -25,6 +25,8 @@ Boid::Boid(sf::Vector2f position, sf::Angle rotation, float range, float separat
     sf::Vector2f test({1.0f, 1.0f});
     m_velocity = test;
     m_acceleration = test;
+
+    m_predator = false;
 }
 
 float Boid::distance(sf::Vector2f boid_position)
@@ -43,11 +45,18 @@ sf::Vector2f Boid::get_velocity()
     return m_velocity;
 }
 
+bool Boid::is_predator()
+{
+    return m_predator;
+}
+
 sf::Vector2f Boid::calculate_separation(std::vector<Boid> boids)
 {
     sf::Vector2f separation({0.0f, 0.0f});
     int in_distance = 0;
     int min_distance = 10;
+
+    int avoid_predator = 1;
 
     for(Boid boid : boids)
     {
@@ -55,15 +64,18 @@ sf::Vector2f Boid::calculate_separation(std::vector<Boid> boids)
 
         if((dist < m_visual_range) && (dist > 0))
         {
+            if(boid.is_predator())
+            {
+                avoid_predator = 3;
+            }
+            else
+            {
+                avoid_predator = 1;
+            }
             sf::Vector2f difference({0.0f, 0.0f});
             difference = get_position() - boid.get_position();
-            separation.x += m_desired_separation*(1 - (min_distance/dist))*difference.x;
-            separation.y += m_desired_separation*(1 - (min_distance/dist))*difference.y;
-            // difference.normalized();
-            // difference = difference / dist;
-            // separation.x += difference.x;
-            // separation.y += difference.y;
-            // in_distance++;
+            separation.x += avoid_predator*m_desired_separation*(1 - (min_distance/dist))*difference.x;
+            separation.y += avoid_predator*m_desired_separation*(1 - (min_distance/dist))*difference.y;
         }
 
     }
@@ -90,7 +102,7 @@ sf::Vector2f Boid::calculate_aligment(std::vector<Boid> boids)
     {
         float dist = distance(boid.get_position());
 
-        if((dist < m_visual_range) && (dist > 0))
+        if((dist < m_visual_range) && (dist > 0) && !boid.is_predator())
         {
             aligment.x += boid.get_position().x;
             aligment.y += boid.get_position().y;
@@ -125,7 +137,7 @@ sf::Vector2f Boid::calculate_cohesion(std::vector<Boid> boids)
     {
         float dist = distance(boid.get_position());
 
-        if((dist < m_visual_range) && (dist > 0))
+        if((dist < m_visual_range) && (dist > 0) && !boid.is_predator())
         {
             average_velocity += boid.get_velocity();
             in_distance++;

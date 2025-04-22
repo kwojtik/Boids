@@ -5,6 +5,7 @@
 #include <cstdlib>
 
 #include "boid.h"
+#include "predator.h"
 
 class Game
 {
@@ -18,6 +19,6 @@ class Game
     Game();
     Game(unsigned int width, unsigned int height);
     sf::Vector2f random_within_bounds();
-    void run(int boids_number);
+    void run(int boids_number, int predator_number);
     void render();
 };

@@ -17,6 +17,7 @@ target_compile_features(main PRIVATE cxx_std_17)
 target_link_libraries(main 
     SFML::Graphics
     boid
+    predator
     game)
 
 add_subdirectory(src)

@@ -27,7 +27,7 @@ sf::Vector2f Game::random_within_bounds()
     return random;
 }
 
-void Game::run(int boids_number)
+void Game::run(int boids_number, int predator_number)
 {
     srand(time(0));
     for(int i = 0; i < boids_number; i++)
@@ -36,7 +36,12 @@ void Game::run(int boids_number)
 
         m_boids.push_back(boid);
     }
-    for(int i = 0; i < 4; i++)
+    for(int i = 0; i < predator_number; i++)
+    {
+        Predator predator(random_within_bounds(), sf::Angle());
+
+        m_boids.push_back(predator);
+    }
 
     while(m_window.isOpen())
     {
