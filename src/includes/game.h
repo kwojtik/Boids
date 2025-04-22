@@ -6,6 +6,7 @@
 
 #include "boid.h"
 #include "predator.h"
+#include "food.h"
 
 class Game
 {
@@ -14,6 +15,7 @@ class Game
     unsigned int m_window_width;
     unsigned int m_window_height;
     std::vector<Boid> m_boids;
+    std::vector<Food> m_food;
 
     public:
     Game();

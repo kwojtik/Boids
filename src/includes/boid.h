@@ -4,6 +4,9 @@
 #include <vector>
 #include <cmath>
 #include <iostream>
+#include <cstdlib>
+
+#include "food.h"
 
 
 class Boid : public sf::ConvexShape
@@ -17,6 +20,7 @@ class Boid : public sf::ConvexShape
     float m_desired_aligment;
     float m_desired_cohesion;
     bool m_predator;
+    int m_hunger;
 
     public:
     Boid();
@@ -25,10 +29,11 @@ class Boid : public sf::ConvexShape
     sf::Vector2f get_velocity();
     sf::Vector2f get_position();
     bool is_predator();
+    sf::Vector2f look_for_food(std::vector<Food>* food);
     sf::Vector2f calculate_separation(std::vector<Boid> boids);
     sf::Vector2f calculate_aligment(std::vector<Boid> boids);
     sf::Vector2f calculate_cohesion(std::vector<Boid> boids);
-    sf::Vector2f calculate_position(std::vector<Boid> boids);
+    sf::Vector2f calculate_position(std::vector<Boid> boids, std::vector<Food>* food);
     void avoid_edges(int height, int width);
-    void update_position(std::vector<Boid> boids, int height, int width);
+    void update_position(std::vector<Boid> boids, int height, int width, std::vector<Food>* food = nullptr);
 };

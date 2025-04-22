@@ -53,10 +53,21 @@ void Game::render()
 {
     m_window.clear();
 
+    if(rand()%10 == 1)
+    {
+        Food food(random_within_bounds());
+
+        m_food.push_back(food);
+    }
+
     for(Boid& boid : m_boids)
     {
-        boid.update_position(m_boids, m_window_height, m_window_width);
+        boid.update_position(m_boids, m_window_height, m_window_width, &m_food);
         m_window.draw(boid);
+    }
+    for(Food& food : m_food)
+    {
+        m_window.draw(food);
     }
 
     m_window.display();

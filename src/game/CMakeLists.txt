@@ -6,4 +6,5 @@ target_link_libraries(game
     PUBLIC SFML::Graphics
     boid
     predator
+    food
 )

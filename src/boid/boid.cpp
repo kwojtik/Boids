@@ -27,6 +27,8 @@ Boid::Boid(sf::Vector2f position, sf::Angle rotation, float range, float separat
     m_acceleration = test;
 
     m_predator = false;
+
+    m_hunger = 50 + (rand()%1000);
 }
 
 float Boid::distance(sf::Vector2f boid_position)
@@ -48,6 +50,50 @@ sf::Vector2f Boid::get_velocity()
 bool Boid::is_predator()
 {
     return m_predator;
+}
+
+sf::Vector2f Boid::look_for_food(std::vector<Food>* food)
+{
+    float shortest_dist = 1e6;
+    auto shortest_dist_it = food->begin();
+
+    int in_distance = 0;
+
+    sf::Vector2f food_direction({0.0f, 0.0f});
+
+    for(auto it = food->begin(); it != food->end();)
+    {
+        float dist = distance(it->get_position());
+        in_distance++;
+
+        if(dist < it->get_radius())
+        {
+            m_hunger += it->eat();
+
+            it = food->erase(it);
+        }
+        else if(dist < m_visual_range)
+        {
+            if(dist < shortest_dist)
+            {
+                shortest_dist_it = it;
+            }
+
+            it++;
+        }
+        else
+        {
+            it++;
+        }
+    }
+
+    if(in_distance > 0)
+    {
+        food_direction.x = shortest_dist_it->get_position().x - get_position().x;
+        food_direction.y = shortest_dist_it->get_position().y - get_position().y;
+    }
+
+    return food_direction;
 }
 
 sf::Vector2f Boid::calculate_separation(std::vector<Boid> boids)
@@ -160,13 +206,20 @@ sf::Vector2f Boid::calculate_cohesion(std::vector<Boid> boids)
     return cohesion;
 }
 
-sf::Vector2f Boid::calculate_position(std::vector<Boid> boids)
+sf::Vector2f Boid::calculate_position(std::vector<Boid> boids, std::vector<Food>* food)
 {
     sf::Vector2f separation = calculate_separation(boids);
     sf::Vector2f aligment = calculate_aligment(boids);
     sf::Vector2f cohesion = calculate_cohesion(boids);
 
-    m_acceleration = m_acceleration + separation + aligment + cohesion;
+    sf::Vector2f food_direction({0.0f, 0.0f});
+
+    if(m_hunger < 0)
+    {
+        food_direction = look_for_food(food);
+    }
+
+    m_acceleration = m_acceleration + separation + aligment + cohesion + food_direction;
 
     if(m_acceleration.length() > 3)
     {
@@ -205,11 +258,13 @@ void Boid::avoid_edges(int height, int width)
     setPosition(tmp_position);
 }
 
-void Boid::update_position(std::vector<Boid> boids, int height, int width)
+void Boid::update_position(std::vector<Boid> boids, int height, int width, std::vector<Food>* food)
 {
-    setPosition(calculate_position(boids));
+    setPosition(calculate_position(boids, food));
     avoid_edges(height, width);
 
     float look_angle = std::atan2(m_acceleration.x, m_acceleration.y);
     setRotation(sf::radians(look_angle));
+
+    m_hunger--;
 }
